@@ -1,0 +1,1 @@
+// functii ajutatoare (eliberare memorie, erori)

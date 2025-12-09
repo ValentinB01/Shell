@@ -1,0 +1,1 @@
+// gestionare ctrl+c, ctrl+z
