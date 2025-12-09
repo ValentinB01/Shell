@@ -4,7 +4,7 @@
 int main()
 {
     char input[MAX_CMD_LEN];
-    struct Command cmd;
+    struct Command *root_cmd = NULL;
 
     while(1)
     {
@@ -23,9 +23,13 @@ int main()
             break;
         }
 
-        parse_input(input, &cmd);
+        parse_input(input, &root_cmd);
 
-        execute_command(&cmd);
+        if(root_cmd != NULL)
+        {
+            execute_pipeline(root_cmd);
+            root_cmd = NULL;
+        }
     }
     return 0;
 }

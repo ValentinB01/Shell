@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
+#include <fcntl.h>
 
 #define MAX_CMD_LEN 1024
 #define MAX_ARGS 64
@@ -17,9 +17,16 @@ struct Command
 {
     char *argv[MAX_ARGS];
     int argc;
+
+    char *input_file;
+    char *output_file;
+    int append_mode;
+
+    struct Command *next;
 };
 
-void parse_input(char *input, struct Command *cmd);
-void execute_command(struct Command *cmd);
+void parse_input(char *input, struct Command **root_cmd);
+void execute_pipeline(struct Command *root_cmd);
+void free_commands(struct Command *root_cmd);
 
 #endif
