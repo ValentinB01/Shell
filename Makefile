@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -g
-SRCS = src/main.c src/parser.c src/executor.c
+SRCS = src/main.c src/parser.c src/executor.c src/history.c src/signals.c
 OBJS = $(SRCS:.c=.o)
 TARGET = myshell
 
@@ -13,4 +13,4 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f src/*.o $(TARGET)
