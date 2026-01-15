@@ -1,4 +1,3 @@
-// marimi de buffer, coduri erroare
 #ifndef SHELL_H
 #define SHELL_H
 
