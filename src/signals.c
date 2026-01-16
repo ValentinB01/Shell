@@ -1,8 +1,17 @@
 #define _POSIX_C_SOURCE 200809L // definim POSIX astfel incat sa recunoasca compilatorul C sigaction, deoarece structura sigaction e specifica linux/unix
 #include "../include/shell.h"
+#include <string.h>
 
 void handle_sigint(int sig) {
-    write(STDOUT_FILENO, "\nMyShell$ ", 10); // nu folosim printf ca nu e sigur, ci syscalluri
+    char cwd[1024];
+    write(STDOUT_FILENO, "\n", 1); 
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        write(STDOUT_FILENO, "MyShell:", 8);
+        write(STDOUT_FILENO, cwd, strlen(cwd));
+        write(STDOUT_FILENO, "$ ", 2);
+    } else {
+        write(STDOUT_FILENO, "MyShell$ ", 9);
+    }
 }
 
 void handle_sigtstp(int sig) {
