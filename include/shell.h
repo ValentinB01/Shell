@@ -9,6 +9,8 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #define MAX_CMD_LEN 1024
 #define MAX_ARGS 64
@@ -23,6 +25,8 @@ struct Command
     char *output_file;
     int append_mode;
 
+    int background;
+
     struct Command *next;
 };
 
@@ -31,9 +35,14 @@ int execute_pipeline(struct Command *root_cmd);
 void free_commands(struct Command *root_cmd);
 
 void init_history();
-void add_history(const char *cmd);
+void add_history_entry(const char *cmd);
 void print_history();
 
 void setup_signals();
+
+int  alias_set(const char *name, const char *value);
+int  alias_unset(const char *name);
+void alias_print(const char *name);
+void alias_expand(const char *line, char *out_buf, size_t out_size);
 
 #endif

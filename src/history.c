@@ -1,31 +1,46 @@
 #include "../include/shell.h"
+#include <readline/history.h>
 
-char *history[HISTORY_SIZE]; //vector ce stocheaza adresa de memorie unde se afla textul(istoricul)
+char *shell_history[HISTORY_SIZE]; /* istoria interna (pentru comanda "history") */
 int history_count = 0;
 
-void init_history() { // initializam istoricul pentru a evita erori nedorite
+void init_history() {
     for (int i = 0; i < HISTORY_SIZE; i++) {
-        history[i] = NULL;
+        shell_history[i] = NULL;
     }
+    /* initializam si istoricul readline */
+    using_history();
 }
 
-void add_history(const char *cmd) {
-    if (cmd == NULL || strlen(cmd) == 0 || cmd[0] == '\n') return;
-    
-    if (history_count < HISTORY_SIZE) { // daca istoricul nu e plin adaugam comanda in istoric
-        history[history_count++] = strdup(cmd); // strdup: calculeaza lungimea lui cmd si ii aloca spatiu(malloc) si il si copiaza in noua memorie
+void add_history_entry(const char *cmd) {
+    if (cmd == NULL || *cmd == '\0' || *cmd == '\n') return;
+
+    /* copie curata fara '\n' de la final */
+    char *clean = strdup(cmd);
+    if (!clean) return;
+
+    size_t len = strlen(clean);
+    if (len > 0 && clean[len - 1] == '\n')
+        clean[len - 1] = '\0';
+
+    if (*clean == '\0') { free(clean); return; }
+
+    /* lista interna */
+    if (history_count < HISTORY_SIZE) {
+        shell_history[history_count++] = clean;
     } else {
-        free(history[0]);
-        for (int i = 1; i < HISTORY_SIZE; i++) { // daca istoricul e plin, stergem cea mai veche comanda si o adaugam pe cea noua la final
-            history[i-1] = history[i]; //aici shiftam la stanga elementele dupa stergerea lui history[0]
-        }
-        history[HISTORY_SIZE-1] = strdup(cmd);
+        free(shell_history[0]);
+        for (int i = 1; i < HISTORY_SIZE; i++)
+            shell_history[i - 1] = shell_history[i];
+        shell_history[HISTORY_SIZE - 1] = clean;
     }
+
+    /* lista readline — permite navigare cu sageti Sus/Jos */
+    add_history(clean);
 }
 
-void print_history() { // afisam istoricul
+void print_history() {
     for (int i = 0; i < history_count; i++) {
-        printf("%d %s", i + 1, history[i]);
-        if (history[i][strlen(history[i])-1] != '\n') printf("\n");
+        printf("%d %s\n", i + 1, shell_history[i]);
     }
 }

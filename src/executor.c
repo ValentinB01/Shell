@@ -41,19 +41,40 @@ int execute_pipeline(struct Command *root_cmd)
     {
         if (strcmp(root_cmd->argv[0], "cd") == 0)
         {
-            if(root_cmd->argc < 2)
-            {
-                const char *home = getenv("HOME");
-                if(home) chdir(home);
+            /* Salvam directorul curent in OLDPWD inainte de orice schimbare */
+            char oldpwd[1024];
+            if (getcwd(oldpwd, sizeof(oldpwd)) != NULL) {
+                setenv("OLDPWD", oldpwd, 1);
             }
-            else
-            {
-                if(chdir(root_cmd->argv[1]) != 0)
-                {
-                    perror("myshell: cd");
-                    return 1; 
+
+            const char *target = NULL;
+
+            if (root_cmd->argc < 2) {
+                /* cd fara argumente => mergi la $HOME */
+                target = getenv("HOME");
+            } else if (strcmp(root_cmd->argv[1], "-") == 0) {
+                /* cd - => revino la directorul anterior ($OLDPWD) */
+                target = getenv("OLDPWD");
+                if (target == NULL) {
+                    fprintf(stderr, "myshell: cd: OLDPWD nu este setat\n");
+                    return 1;
                 }
+                printf("%s\n", target); /* bash afiseaza noua cale la cd - */
+            } else {
+                target = root_cmd->argv[1];
             }
+
+            if (target && chdir(target) != 0) {
+                perror("myshell: cd");
+                return 1;
+            }
+
+            /* Actualizam PWD in mediu dupa schimbare */
+            char newpwd[1024];
+            if (getcwd(newpwd, sizeof(newpwd)) != NULL) {
+                setenv("PWD", newpwd, 1);
+            }
+
             return 0;
         }
         if(strcmp(root_cmd->argv[0], "exit") == 0)
@@ -64,6 +85,57 @@ int execute_pipeline(struct Command *root_cmd)
         if (strcmp(root_cmd->argv[0], "history") == 0) {
             print_history();
             return 0;
+        }
+        if (strcmp(root_cmd->argv[0], "export") == 0) {
+            if (root_cmd->argc < 2) {
+                fprintf(stderr, "export: lipsa argument (ex: export NUME=Valoare)\n");
+                return 1;
+            }
+            for (int i = 1; i < root_cmd->argc; i++) {
+                char *pair = root_cmd->argv[i]; /* ex: "NUME=Valentin" */
+                char *eq   = strchr(pair, '=');
+                if (eq == NULL) {
+                    fprintf(stderr, "export: format invalid '%s' (foloseste NUME=VALOARE)\n", pair);
+                    return 1;
+                }
+                *eq = '\0';              /* splitem in NUME si VALOARE */
+                char *name  = pair;
+                char *value = eq + 1;
+                if (setenv(name, value, 1) != 0) {
+                    perror("export: setenv");
+                    *eq = '=';           /* restauram sirul original */
+                    return 1;
+                }
+                *eq = '=';               /* restauram - nu stricam argv[] original */
+            }
+            return 0;
+        }
+        if (strcmp(root_cmd->argv[0], "alias") == 0) {
+            if (root_cmd->argc < 2) {
+                alias_print(NULL); /* listeaza toate */
+                return 0;
+            }
+            for (int i = 1; i < root_cmd->argc; i++) {
+                char *pair = root_cmd->argv[i];
+                char *eq   = strchr(pair, '=');
+                if (eq == NULL) {
+                    /* alias NUME => afiseaza doar acel alias */
+                    alias_print(pair);
+                } else {
+                    *eq = '\0';
+                    alias_set(pair, eq + 1);
+                    *eq = '=';
+                }
+            }
+            return 0;
+        }
+        /* unalias NUME — sterge un alias */
+        if (strcmp(root_cmd->argv[0], "unalias") == 0) {
+            if (root_cmd->argc < 2) {
+                fprintf(stderr, "unalias: lipsa nume\n");
+                return 1;
+            }
+            return alias_unset(root_cmd->argv[1]);
         }
     } 
     // logica pipe si comenzi externe
@@ -127,19 +199,24 @@ int execute_pipeline(struct Command *root_cmd)
         cmd = cmd->next;
     }
 
+   if (root_cmd->background) {
+        printf("[background] PID %d\n", last_pid);
+        return 0;
+    }
+
     int status;
     int final_exit_code = 0;
     pid_t wpid;
-    
-    while ((wpid = wait(&status)) > 0) { //asteptam terminarea tuturor proceselor copil
-        if (wpid == last_pid) { // daca 
-            if (WIFEXITED(status)) { // statusul ultimei comenzi, daca nu a dat exit normal => pipe nu a functionat
+
+    while ((wpid = wait(&status)) > 0) { /* asteptam terminarea tuturor proceselor copil */
+        if (wpid == last_pid) {
+            if (WIFEXITED(status)) { /* statusul ultimei comenzi */
                 final_exit_code = WEXITSTATUS(status);
             } else {
-                final_exit_code = 1; 
+                final_exit_code = 1;
             }
         }
     }
-    
+
     return final_exit_code;
 }

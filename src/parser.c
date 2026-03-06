@@ -8,8 +8,19 @@ struct Command* create_command() { // functia ce initializeaza structura de date
     cmd->input_file = NULL;
     cmd->output_file = NULL;
     cmd->append_mode = 0;
+    cmd->background = 0;
     cmd->next = NULL;
     return cmd;
+}
+
+static const char *expand_variable(const char *token) {
+    if (token[0] != '$') return token;   /* nu e variabila */
+
+    const char *name  = token + 1;       /* sarim '$' */
+    if (*name == '\0') return "$";       /* token izolat "$" */
+
+    const char *value = getenv(name);
+    return (value != NULL) ? value : ""; /* variabila inexistenta => "" */
 }
 
 void parse_args_manual(char *line, struct Command *cmd) {
@@ -78,25 +89,41 @@ void parse_args_manual(char *line, struct Command *cmd) {
         }
         else { // pentru argumente normale
             if (cmd->argc < MAX_ARGS - 1) {
-                cmd->argv[cmd->argc++] = token_start;
+                /* expandam $VAR inainte de a stoca argumentul */
+                const char *expanded = expand_variable(token_start);
+                cmd->argv[cmd->argc++] = (char *)expanded;
             }
         }
     }
     cmd->argv[cmd->argc] = NULL;
 }
 
+
 void parse_input(char *input, struct Command **root_cmd) {
     input[strcspn(input, "\n")] = 0;
-    
+
+    /* Detectam & la finalul comenzii (inainte de split pe |) */
+    int is_background = 0;
+    char *amp = strrchr(input, '&');
+    if (amp != NULL) {
+        /* verificam ca dupa & sa fie doar spatii (sau nimic) */
+        char *after = amp + 1;
+        while (*after && isspace((unsigned char)*after)) after++;
+        if (*after == '\0') {
+            is_background = 1;
+            *amp = '\0'; /* eliminam & din sir */
+        }
+    }
+
     char *pipe_segment;
     char *rest_pipeline = input;
-    
+
     struct Command *current = NULL;
     struct Command *last = NULL;
 
     while ((pipe_segment = strtok_r(rest_pipeline, "|", &rest_pipeline))) { // spargem dupa | pentru a procesa separat comenzile separate prin pipeuri
         current = create_command();
-        
+
         if (*root_cmd == NULL) { // cream o lista inlantuita din comenzile separate de |
             *root_cmd = current;
         } else {
@@ -105,6 +132,11 @@ void parse_input(char *input, struct Command **root_cmd) {
         last = current;
 
         parse_args_manual(pipe_segment, current);
+    }
+
+    /* Setam flag-ul background pe ultima comanda din pipeline */
+    if (is_background && last != NULL) {
+        last->background = 1;
     }
 }
 
