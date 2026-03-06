@@ -96,5 +96,5 @@ MyShell:/tmp$ cd -
 
 ✅ Signal Handling: Responds correctly to interruptions: prevents accidental shell closure on CTRL+C and ignores CTRL+Z for the parent process.
 
-👥 Authors
+## 👥 Authors
 Created by Buse Valentin-Cristian and Cuntan Paul.
