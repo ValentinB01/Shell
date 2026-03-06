@@ -44,9 +44,9 @@ Iată câteva exemple de lucruri pe care le poți testa direct în MyShell:
 MyShell:/home/user$ ls -la | grep ".c" > fisiere_c.txt
 
 ### Procese în Background:
-MyShell:/home/user$ sleep 10 &
-[background] PID 12345
-MyShell:/home/user$ 
+MyShell:/home/user$ sleep 10 &.
+[background] PID 12345.
+MyShell:/home/user$.
 
 ### Crearea Alias-urilor și a Variabilelor de Mediu:
 * MyShell:/home/user$ export USERNAME=User
