@@ -1,67 +1,100 @@
-# MyShell - Interpretator de Comenzi (Custom C Shell)
+# MyShell - Custom C Shell
 
-Un shell personalizat scris în C, creat pentru a emula comportamentul unui terminal clasic de Linux/Unix (precum bash). Proiectul oferă un mediu interactiv pentru rularea comenzilor externe și include suport pentru funcționalități avansate precum redirectări, pipeline-uri, procese în background, alias-uri și variabile de mediu.
+A custom shell written in C, designed to emulate the behavior of a classic Linux/Unix terminal (such as bash). The project provides an interactive environment for executing external commands and includes support for advanced features like redirections, pipelines, background processes, aliases, and environment variables.
 
-## Funcționalități Principale
+## 📋 Overview
 
-* **Rularea executabilelor:** Execută orice program din sistem aflat în `$PATH` (ex: `ls`, `grep`, `cat`).
-* **Pipeline-uri (`|`):** Permite înlănțuirea mai multor comenzi, redirecționând ieșirea uneia către intrarea celeilalte.
-* **Redirectări I/O (`<`, `>`, `>>`):** Redirecționează input-ul și output-ul standard din și către fișiere.
-* **Operatori Logici (`&&`, `||`):** Execuție condiționată a comenzilor pe baza codului de retur (exit status).
-* **Procese în Background (`&`):** Rulează comenzi în fundal fără a bloca prompt-ul terminalului. Gestiunea automată a proceselor "zombie" este asigurată prin manipularea semnalului `SIGCHLD`.
-* **Variabile de Mediu:** Setează variabile cu `export NUME=Valoare` și folosește-le în comenzi prin expandare (ex: `echo $NUME`).
-* **Alias-uri:** Scurtează comenzile lungi (ex: `alias ll='ls -la'`). Suportă comenzi built-in pentru `alias` și `unalias`.
-* **Navigare Avansată:** Comanda `cd` permite schimbarea directoarelor, inclusiv revenirea la directorul anterior folosind `cd -`.
-* **Istoric & Autocompletare:** Integrează GNU Readline pentru a oferi autocompletare la tasta TAB și navigare prin istoricul comenzilor folosind săgețile direcționale.
-* **Gestiunea Semnalelor:** Răspunde corect la întreruperi: previne închiderea accidentală a shell-ului la `CTRL+C` și ignoră `CTRL+Z` pentru procesul părinte.
+This program acts as a command-line interpreter that handles user input, parses commands, and manages process execution using system calls like `fork`, `execvp`, and `pipe`. It aims to provide a robust and user-friendly terminal experience.
 
-## Cerințe de Sistem
+## 🚀 Getting Started
 
-Pentru a compila și rula acest shell, ai nevoie de un mediu bazat pe Linux și de biblioteca **GNU Readline**.
+### Prerequisites
 
-Pe sisteme bazate pe Debian/Ubuntu, instalează dependențele cu:
+- Unix-like operating system (Linux, macOS, etc.)
+- GCC (build-essential)
+- GNU Readline library
+
+### Installation
+
+On Debian/Ubuntu-based systems, install the required dependencies with:
+
+```bash
 sudo apt-get update
 sudo apt-get install build-essential libreadline-dev
+```
 
+## ⚙️ Compilation and Execution
+The project uses a Makefile to automate the compilation process.
 
-## Compilare și Rulare
-Proiectul folosește un Makefile pentru a automatiza procesul de compilare.
-Clonează repository-ul și navighează în folderul proiectului.
+Clone the repository and navigate to the project folder.
 
-Compilează codul folosind comanda:
+Compile the code and start the shell using the following command:
+
+```bash
 make
-
-Pornește shell-ul:
 ./myshell
+```
 
-Pentru a curăța fișierele obiect și executabilul, folosește:
+To clean the compiled object files and the executable, use:
+
+```bash
 make clean
+```
 
-## Exemple de Utilizare
-Iată câteva exemple de lucruri pe care le poți testa direct în MyShell:
+## 💻 Usage & Examples
+Here are a few examples of what you can test directly in MyShell:
 
-### Folosirea Pipeline-urilor și a redirectărilor:
-MyShell:/home/user$ ls -la | grep ".c" > fisiere_c.txt
+### Using Pipelines and Redirections:
 
-### Procese în Background:
+```bash
+MyShell:/home/user$ ls -la | grep ".c" > c_files.txt
+```
+
+### Background Processes:
+
+```bash
 MyShell:/home/user$ sleep 10 &
-
 [background] PID 12345
-
 MyShell:/home/user$
+```
 
+### Creating Aliases and Environment Variables:
 
-### Crearea Alias-urilor și a Variabilelor de Mediu:
- MyShell:/home/user$ export USERNAME=User
- 
- MyShell:/home/user$ alias salut='echo Salutare, $USERNAME!'
- 
- MyShell:/home/user$ salut
- 
- Salutare, User!
- 
+```bash
+MyShell:/home/user$ export USERNAME=User
+MyShell:/home/user$ alias hello='echo Hello, $USERNAME!'
+MyShell:/home/user$ hello
+Hello, User!
+```
 
-### Navigare Rapidă:
+### Fast Navigation:
+
+```bash
 MyShell:/home/user$ cd /tmp
 MyShell:/tmp$ cd -
 /home/user
+```
+
+🔍 Features
+✅ Executing Programs: Runs any system program found in $PATH (e.g., ls, grep, cat).
+
+✅ Pipelines (|): Allows chaining multiple commands, redirecting the output of one to the input of the next.
+
+✅ I/O Redirections (<, >, >>): Redirects standard input and output from and to files.
+
+✅ Logical Operators (&&, ||): Conditional execution of commands based on the return code (exit status) of the previous command.
+
+✅ Background Processes (&): Runs commands in the background without blocking the terminal prompt. Automatic management of "zombie" processes is ensured by handling the SIGCHLD signal.
+
+✅ Environment Variables: Sets variables with export NAME=Value and uses them in commands via expansion (e.g., echo $NAME).
+
+✅ Aliases: Shortens long commands (e.g., alias ll='ls -la'). Supports built-in commands for alias and unalias.
+
+✅ Advanced Navigation: The cd command allows changing directories, including returning to the previous directory using cd -.
+
+✅ History & Autocompletion: Integrates GNU Readline to provide TAB autocompletion and command history navigation using directional arrows.
+
+✅ Signal Handling: Responds correctly to interruptions: prevents accidental shell closure on CTRL+C and ignores CTRL+Z for the parent process.
+
+👥 Authors
+Created by Buse Valentin-Cristian and Cuntan Paul.
