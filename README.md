@@ -25,17 +25,16 @@ sudo apt-get install build-essential libreadline-dev
 
 
 ## Compilare și Rulare
-### Proiectul folosește un Makefile pentru a automatiza procesul de compilare.
+Proiectul folosește un Makefile pentru a automatiza procesul de compilare.
+Clonează repository-ul și navighează în folderul proiectului.
 
-### Clonează repository-ul și navighează în folderul proiectului.
-
-### Compilează codul folosind comanda:
+Compilează codul folosind comanda:
 make
 
-### Pornește shell-ul:
+Pornește shell-ul:
 ./myshell
 
-### Pentru a curăța fișierele obiect și executabilul, folosește:
+Pentru a curăța fișierele obiect și executabilul, folosește:
 make clean
 
 ## Exemple de Utilizare
@@ -50,10 +49,10 @@ MyShell:/home/user$ sleep 10 &
 MyShell:/home/user$ 
 
 ### Crearea Alias-urilor și a Variabilelor de Mediu:
-MyShell:/home/user$ export USERNAME=User
-MyShell:/home/user$ alias salut='echo Salutare, $USERNAME!'
-MyShell:/home/user$ salut
-Salutare, User!
+* MyShell:/home/user$ export USERNAME=User
+* MyShell:/home/user$ alias salut='echo Salutare, $USERNAME!'
+* MyShell:/home/user$ salut
+* Salutare, User!
 
 ### Navigare Rapidă:
 MyShell:/home/user$ cd /tmp
